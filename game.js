@@ -1,64 +1,33 @@
-var gamePattern = [];
+
 var buttonColors = ["red", "blue", "green", "yellow"];
+var gamePattern = [];
 var userClickPattern = [];
-//var level = "Level" + i
 
+var started = false;
+var level = 0;
 
-// var toggle = function() {
-//     var on = false;
-//     return function() {
-//     if(!on) {
-//         on = true;
-//         //Do stuff if ON
-//         return;
-//     }
-//     //Do stuff if OFF
-//     on = false;
-// }
-// }();
-
-// toggle();
 
 //computer random pattern 
-$(document).keypress(function(nextSequence) {
-    var txtInput = nextSequence.keyCode;
-    var letterToBe = String.fromCharCode(txtInput);
+$(document).keypress(function () {
     
-    if(letterToBe === "n") {
-        playGame();
-        
-    // var randomColor = buttonColors[Math.floor(Math.random() * 4)];
-    // gamePattern.push(randomColor);
-    // myFlash(randomColor);
-    // coolSound(randomColor);
-    // levelCounter();
-     
-    
-    } else{
-        $("h1").html("You click the wrong letter DUMB FUCK refresh to play the game!!!"); 
-   }
+    if (!started) {
+        $("h1").html("Level " + level);
+        nextSequence();
+        started = true;
+    }
 });
 
-function playGame() {
-var randomColor = buttonColors[Math.floor(Math.random() * 4)];
+
+function nextSequence() {
+    userClickPattern = [];
+    level++;
+    $("h1").html("Level " + level);
+    var randomColor = buttonColors[Math.floor(Math.random() * 4)];
     gamePattern.push(randomColor);
     myFlash(randomColor);
     coolSound(randomColor);
-    levelCounter();
-    //userClickPattern.length = 0;
 }
 
-
-//modify the level number
-var counter = [];
-function levelCounter() {
-        var count = 1;
-        var level = counter.length;
-
-        counter.push(count)
-
-    $("h1").html("Level " + level);   
-}
     
 //detect the userclick
 $(".btn").click(function(e){
@@ -67,7 +36,7 @@ $(".btn").click(function(e){
    myFlash(userClick);
    coolSound(userClick);
    myShadow(userClick);
-   checkAnswer(userClick);
+   checkAnswer(userClickPattern.length-1);
   
 
 }) 
@@ -75,27 +44,25 @@ $(".btn").click(function(e){
 //game
 
 function checkAnswer(currentLevel) {
-    var userInput = userClickPattern.toString(); // need to conver it to string first because cant compare object(array is obj)
-    var gameInput = gamePattern.toString();
-    // var userInput = userClickPattern[userClickPattern.length-1];
-    // var gameInput = gamePattern[gamePattern.length-1];
 
-    if (userInput === gameInput) {
-        
-        setTimeout(playGame, 1000);
-        userClickPattern.length = 0;
+    if (gamePattern[currentLevel] === userClickPattern[currentLevel]) {
+        if (userClickPattern.length === gamePattern.length) {
+            setTimeout(nextSequence, 1000);
+        }
     } else {
-        setTimeout(gameOver, 1000);
-        // $("h1").html("GAME OVER!!");
-        // counter.length = 0;
-        
+        var audio = new Audio('sounds/wrong.mp3');
+        audio.play();
+        $("body").addClass("game-over");
+        $("h1").html("GAME OVER!!, Press Any Key To Restart");
+
+        setTimeout(function () {
+            $("body").removeClass("game-over");
+        }, 200);
+
+        startOver();
+
     }
-}
 
-
-function gameOver(){
-    $("h1").html("GAME OVER!!");
-    counter.length = 0;
 }
 
 // the sound
@@ -143,3 +110,9 @@ function myShadow(myShadowColor) {
    selectedButton.removeClass("pressed");
   },100);
 };
+
+function startOver() {
+    level = 0;
+    gamePattern = [];
+    started = false
+} 
